@@ -12,7 +12,7 @@ public class TestBase {
 
     @BeforeAll
     public static void setUp() {
-         RestAssured.requestSpecification = baseRequestSpec;
+        RestAssured.requestSpecification = baseRequestSpec;
         api = new ApiClient();
     }
 }

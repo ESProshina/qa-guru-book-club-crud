@@ -1,6 +1,5 @@
 package tests;
 
-import io.qameta.allure.Allure;
 import models.clubs.ClubModel;
 import models.clubs.CreateClubBodyModel;
 import models.clubs.PatchClubBodyModel;
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static io.qameta.allure.Allure.step;
 import static org.assertj.core.api.Assertions.assertThat;
 import static specs.clubs.ClubsSpec.*;
 import static tests.TestData.*;
@@ -21,7 +21,7 @@ public class ClubsCrudTests extends TestBase {
 
     @BeforeEach
     public void auth() {
-        Allure.step("Авторизация и получение access-токена", () -> {
+        step("Авторизация и получение access-токена", () -> {
             LoginBodyModel loginData = new LoginBodyModel(LOGIN_USERNAME, LOGIN_PASSWORD);
             accessToken = api.auth.loginAndGetAccessToken(loginData);
         });
@@ -29,7 +29,7 @@ public class ClubsCrudTests extends TestBase {
 
     @AfterEach
     public void cleanup() {
-        Allure.step("Cleanup: удаление созданного клуба", () -> {
+        step("Cleanup: удаление созданного клуба", () -> {
             if (createdClubId != null) {
                 try {
                     api.clubs.deleteClub(accessToken, createdClubId);
@@ -41,6 +41,8 @@ public class ClubsCrudTests extends TestBase {
         });
     }
 
+    // ==================== CREATE ====================
+
     @Test
     @DisplayName("Позитивный: Создание клуба (201 Created)")
     public void createClubTest() {
@@ -48,19 +50,21 @@ public class ClubsCrudTests extends TestBase {
                 CLUB_BOOK_TITLE, CLUB_BOOK_AUTHORS, CLUB_PUBLICATION_YEAR,
                 CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK);
 
-        ClubModel response = Allure.step("POST /clubs/", () ->
+        ClubModel response = step("POST /clubs/", () ->
                 api.clubs.createClub(accessToken, body));
         createdClubId = response.id();
 
-        Allure.step("Проверка: id > 0", () -> assertThat(response.id()).isPositive());
-        Allure.step("Проверка: bookTitle", () -> assertThat(response.bookTitle()).isEqualTo(CLUB_BOOK_TITLE));
-        Allure.step("Проверка: bookAuthors", () -> assertThat(response.bookAuthors()).isEqualTo(CLUB_BOOK_AUTHORS));
-        Allure.step("Проверка: publicationYear", () -> assertThat(response.publicationYear()).isEqualTo(CLUB_PUBLICATION_YEAR));
-        Allure.step("Проверка: description", () -> assertThat(response.description()).isEqualTo(CLUB_DESCRIPTION));
-        Allure.step("Проверка: telegramChatLink", () -> assertThat(response.telegramChatLink()).isEqualTo(CLUB_TELEGRAM_LINK));
-        Allure.step("Проверка: owner != null", () -> assertThat(response.owner()).isNotNull());
-        Allure.step("Проверка: created != null", () -> assertThat(response.created()).isNotNull());
+        step("Проверка: id > 0", () -> assertThat(response.id()).isPositive());
+        step("Проверка: bookTitle", () -> assertThat(response.bookTitle()).isEqualTo(CLUB_BOOK_TITLE));
+        step("Проверка: bookAuthors", () -> assertThat(response.bookAuthors()).isEqualTo(CLUB_BOOK_AUTHORS));
+        step("Проверка: publicationYear", () -> assertThat(response.publicationYear()).isEqualTo(CLUB_PUBLICATION_YEAR));
+        step("Проверка: description", () -> assertThat(response.description()).isEqualTo(CLUB_DESCRIPTION));
+        step("Проверка: telegramChatLink", () -> assertThat(response.telegramChatLink()).isEqualTo(CLUB_TELEGRAM_LINK));
+        step("Проверка: owner != null", () -> assertThat(response.owner()).isNotNull());
+        step("Проверка: created != null", () -> assertThat(response.created()).isNotNull());
     }
+
+    // ==================== READ ====================
 
     @Test
     @DisplayName("Позитивный: Получение клуба по ID (200 OK)")
@@ -70,14 +74,15 @@ public class ClubsCrudTests extends TestBase {
                         CLUB_PUBLICATION_YEAR, CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK));
         createdClubId = created.id();
 
-        ClubModel response = Allure.step("GET /clubs/" + createdClubId + "/", () ->
+        ClubModel response = step("GET /clubs/" + createdClubId + "/", () ->
                 api.clubs.getClubById(createdClubId));
 
-        Allure.step("Проверка: id совпадает", () -> assertThat(response.id()).isEqualTo(createdClubId));
-        Allure.step("Проверка: bookTitle", () -> assertThat(response.bookTitle()).isEqualTo(CLUB_BOOK_TITLE));
-        Allure.step("Проверка: description", () -> assertThat(response.description()).isEqualTo(CLUB_DESCRIPTION));
+        step("Проверка: id совпадает", () -> assertThat(response.id()).isEqualTo(createdClubId));
+        step("Проверка: bookTitle", () -> assertThat(response.bookTitle()).isEqualTo(CLUB_BOOK_TITLE));
+        step("Проверка: description", () -> assertThat(response.description()).isEqualTo(CLUB_DESCRIPTION));
     }
 
+    // ==================== UPDATE (PUT) ====================
 
     @Test
     @DisplayName("Позитивный: Полное обновление клуба через PUT (200 OK)")
@@ -92,13 +97,15 @@ public class ClubsCrudTests extends TestBase {
                 UPDATED_CLUB_PUBLICATION_YEAR, UPDATED_CLUB_DESCRIPTION,
                 UPDATED_CLUB_TELEGRAM_LINK);
 
-        ClubModel response = Allure.step("PUT /clubs/" + createdClubId + "/", () ->
+        ClubModel response = step("PUT /clubs/" + createdClubId + "/", () ->
                 api.clubs.updateClub(accessToken, createdClubId, updated));
 
-        Allure.step("Проверка: bookTitle", () -> assertThat(response.bookTitle()).isEqualTo(UPDATED_CLUB_BOOK_TITLE));
-        Allure.step("Проверка: bookAuthors", () -> assertThat(response.bookAuthors()).isEqualTo(UPDATED_CLUB_BOOK_AUTHORS));
-        Allure.step("Проверка: description", () -> assertThat(response.description()).isEqualTo(UPDATED_CLUB_DESCRIPTION));
+        step("Проверка: bookTitle", () -> assertThat(response.bookTitle()).isEqualTo(UPDATED_CLUB_BOOK_TITLE));
+        step("Проверка: bookAuthors", () -> assertThat(response.bookAuthors()).isEqualTo(UPDATED_CLUB_BOOK_AUTHORS));
+        step("Проверка: description", () -> assertThat(response.description()).isEqualTo(UPDATED_CLUB_DESCRIPTION));
     }
+
+    // ==================== UPDATE (PATCH) ====================
 
     @Test
     @DisplayName("Позитивный: Частичное обновление клуба через PATCH (200 OK)")
@@ -111,17 +118,18 @@ public class ClubsCrudTests extends TestBase {
         PatchClubBodyModel patch = new PatchClubBodyModel(
                 UPDATED_CLUB_BOOK_TITLE, null, null, null, null);
 
-        ClubModel response = Allure.step("PATCH /clubs/" + createdClubId + "/", () ->
+        ClubModel response = step("PATCH /clubs/" + createdClubId + "/", () ->
                 api.clubs.patchClub(accessToken, createdClubId, patch));
 
-        Allure.step("Проверка: bookTitle изменился", () ->
+        step("Проверка: bookTitle изменился", () ->
                 assertThat(response.bookTitle()).isEqualTo(UPDATED_CLUB_BOOK_TITLE));
-        Allure.step("Проверка: bookAuthors НЕ изменился", () ->
+        step("Проверка: bookAuthors НЕ изменился", () ->
                 assertThat(response.bookAuthors()).isEqualTo(CLUB_BOOK_AUTHORS));
-        Allure.step("Проверка: description НЕ изменился", () ->
+        step("Проверка: description НЕ изменился", () ->
                 assertThat(response.description()).isEqualTo(CLUB_DESCRIPTION));
     }
 
+    // ==================== DELETE ====================
 
     @Test
     @DisplayName("Позитивный: Удаление клуба (204 No Content)")
@@ -131,9 +139,9 @@ public class ClubsCrudTests extends TestBase {
                         CLUB_PUBLICATION_YEAR, CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK));
         int id = created.id();
 
-        Allure.step("DELETE /clubs/" + id + "/", () -> api.clubs.deleteClub(accessToken, id));
+        step("DELETE /clubs/" + id + "/", () -> api.clubs.deleteClub(accessToken, id));
 
-        Allure.step("Проверка: GET по удалённому ID возвращает 404", () -> {
+        step("Проверка: GET по удалённому ID возвращает 404", () -> {
             var response = api.clubs.getClubByIdWithSpec(id, clubNotFoundResponseSpec);
             assertThat(response.statusCode()).isEqualTo(404);
         });
@@ -141,6 +149,7 @@ public class ClubsCrudTests extends TestBase {
         createdClubId = null;
     }
 
+    // ==================== MEMBERS ====================
 
     @Test
     @DisplayName("Позитивный: Создатель автоматически добавлен в members клуба")
@@ -150,7 +159,7 @@ public class ClubsCrudTests extends TestBase {
                         CLUB_PUBLICATION_YEAR, CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK));
         createdClubId = created.id();
 
-        Allure.step("Проверка: members содержит owner", () -> {
+        step("Проверка: members содержит owner", () -> {
             assertThat(created.members()).isNotNull().isNotEmpty();
             assertThat(created.members()).contains(created.owner());
         });
@@ -164,12 +173,13 @@ public class ClubsCrudTests extends TestBase {
                         CLUB_PUBLICATION_YEAR, CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK));
         createdClubId = created.id();
 
-        var response = Allure.step("POST /clubs/" + createdClubId + "/members/me/ дважды", () ->
+        var response = step("POST /clubs/" + createdClubId + "/members/me/ дважды", () ->
                 api.clubs.joinClubWithSpec(accessToken, createdClubId, clubBadRequestResponseSpec));
 
-        Allure.step("Проверка: статус 400", () -> assertThat(response.statusCode()).isEqualTo(400));
+        step("Проверка: статус 400", () -> assertThat(response.statusCode()).isEqualTo(400));
     }
 
+    // ==================== НЕГАТИВНЫЕ ====================
 
     @Test
     @DisplayName("Негативный: Создание клуба без токена (401 Unauthorized)")
@@ -178,10 +188,10 @@ public class ClubsCrudTests extends TestBase {
                 CLUB_BOOK_TITLE, CLUB_BOOK_AUTHORS, CLUB_PUBLICATION_YEAR,
                 CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK);
 
-        var response = Allure.step("POST /clubs/ без токена", () ->
+        var response = step("POST /clubs/ без токена", () ->
                 api.clubs.createClubWithSpec(null, body, clubUnauthorizedResponseSpec));
 
-        Allure.step("Проверка: статус 401", () -> assertThat(response.statusCode()).isEqualTo(401));
+        step("Проверка: статус 401", () -> assertThat(response.statusCode()).isEqualTo(401));
     }
 
     @Test
@@ -191,27 +201,27 @@ public class ClubsCrudTests extends TestBase {
                 EMPTY_STRING, CLUB_BOOK_AUTHORS, CLUB_PUBLICATION_YEAR,
                 CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK);
 
-        var response = Allure.step("POST /clubs/ с пустым bookTitle", () ->
+        var response = step("POST /clubs/ с пустым bookTitle", () ->
                 api.clubs.createClubWithSpec(accessToken, body, clubBadRequestResponseSpec));
 
-        Allure.step("Проверка: статус 400", () -> assertThat(response.statusCode()).isEqualTo(400));
+        step("Проверка: статус 400", () -> assertThat(response.statusCode()).isEqualTo(400));
     }
 
     @Test
     @DisplayName("Негативный: Получение несуществующего клуба (404 Not Found)")
     public void getNonExistentClubTest() {
-        var response = Allure.step("GET /clubs/" + NON_EXISTENT_CLUB_ID + "/", () ->
+        var response = step("GET /clubs/" + NON_EXISTENT_CLUB_ID + "/", () ->
                 api.clubs.getClubByIdWithSpec(NON_EXISTENT_CLUB_ID, clubNotFoundResponseSpec));
 
-        Allure.step("Проверка: статус 404", () -> assertThat(response.statusCode()).isEqualTo(404));
+        step("Проверка: статус 404", () -> assertThat(response.statusCode()).isEqualTo(404));
     }
 
     @Test
     @DisplayName("Негативный: Удаление несуществующего клуба (404 Not Found)")
     public void deleteNonExistentClubTest() {
-        var response = Allure.step("DELETE /clubs/" + NON_EXISTENT_CLUB_ID + "/", () ->
+        var response = step("DELETE /clubs/" + NON_EXISTENT_CLUB_ID + "/", () ->
                 api.clubs.deleteClubWithSpec(accessToken, NON_EXISTENT_CLUB_ID, clubNotFoundResponseSpec));
 
-        Allure.step("Проверка: статус 404", () -> assertThat(response.statusCode()).isEqualTo(404));
+        step("Проверка: статус 404", () -> assertThat(response.statusCode()).isEqualTo(404));
     }
 }
