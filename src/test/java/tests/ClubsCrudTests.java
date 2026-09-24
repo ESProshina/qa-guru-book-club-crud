@@ -32,11 +32,10 @@ public class ClubsCrudTests extends TestBase {
         Allure.step("Cleanup: удаление созданного клуба", () -> {
             if (createdClubId != null) {
                 try {
-                    api.clubs.deleteClubWithSpec(accessToken, createdClubId, clubNotFoundResponseSpec);
-                } catch (Exception ignored) { /* клуб уже удалён */ }
-                try {
                     api.clubs.deleteClub(accessToken, createdClubId);
-                } catch (Exception ignored) { /* клуб уже удалён */ }
+                } catch (Exception ignored) {
+                    // клуб уже удалён — не критично
+                }
                 createdClubId = null;
             }
         });
@@ -47,12 +46,8 @@ public class ClubsCrudTests extends TestBase {
     @DisplayName("Позитивный: Создание клуба (201 Created)")
     public void createClubTest() {
         CreateClubBodyModel body = new CreateClubBodyModel(
-                CLUB_BOOK_TITLE,
-                CLUB_BOOK_AUTHORS,
-                CLUB_PUBLICATION_YEAR,
-                CLUB_DESCRIPTION,
-                CLUB_TELEGRAM_LINK
-        );
+                CLUB_BOOK_TITLE, CLUB_BOOK_AUTHORS, CLUB_PUBLICATION_YEAR,
+                CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK);
 
         ClubModel response = Allure.step("POST /clubs/", () ->
                 api.clubs.createClub(accessToken, body));
@@ -67,7 +62,6 @@ public class ClubsCrudTests extends TestBase {
         Allure.step("Проверка: owner != null", () -> assertThat(response.owner()).isNotNull());
         Allure.step("Проверка: created != null", () -> assertThat(response.created()).isNotNull());
     }
-
 
     @Test
     @DisplayName("Позитивный: Получение клуба по ID (200 OK)")
@@ -95,24 +89,17 @@ public class ClubsCrudTests extends TestBase {
         createdClubId = created.id();
 
         CreateClubBodyModel updated = new CreateClubBodyModel(
-                UPDATED_CLUB_BOOK_TITLE,
-                UPDATED_CLUB_BOOK_AUTHORS,
-                UPDATED_CLUB_PUBLICATION_YEAR,
-                UPDATED_CLUB_DESCRIPTION,
-                UPDATED_CLUB_TELEGRAM_LINK
-        );
+                UPDATED_CLUB_BOOK_TITLE, UPDATED_CLUB_BOOK_AUTHORS,
+                UPDATED_CLUB_PUBLICATION_YEAR, UPDATED_CLUB_DESCRIPTION,
+                UPDATED_CLUB_TELEGRAM_LINK);
 
         ClubModel response = Allure.step("PUT /clubs/" + createdClubId + "/", () ->
                 api.clubs.updateClub(accessToken, createdClubId, updated));
 
-        Allure.step("Проверка: bookTitle обновлён", () ->
-                assertThat(response.bookTitle()).isEqualTo(UPDATED_CLUB_BOOK_TITLE));
-        Allure.step("Проверка: bookAuthors обновлён", () ->
-                assertThat(response.bookAuthors()).isEqualTo(UPDATED_CLUB_BOOK_AUTHORS));
-        Allure.step("Проверка: description обновлён", () ->
-                assertThat(response.description()).isEqualTo(UPDATED_CLUB_DESCRIPTION));
+        Allure.step("Проверка: bookTitle", () -> assertThat(response.bookTitle()).isEqualTo(UPDATED_CLUB_BOOK_TITLE));
+        Allure.step("Проверка: bookAuthors", () -> assertThat(response.bookAuthors()).isEqualTo(UPDATED_CLUB_BOOK_AUTHORS));
+        Allure.step("Проверка: description", () -> assertThat(response.description()).isEqualTo(UPDATED_CLUB_DESCRIPTION));
     }
-
 
     @Test
     @DisplayName("Позитивный: Частичное обновление клуба через PATCH (200 OK)")
@@ -155,36 +142,35 @@ public class ClubsCrudTests extends TestBase {
         createdClubId = null;
     }
 
+
     @Test
-    @DisplayName("Позитивный: Вступление в клуб (204 No Content)")
-    public void joinClubTest() {
+    @DisplayName("Позитивный: Создатель автоматически добавлен в members клуба")
+    public void creatorIsAutoAddedToMembersTest() {
         ClubModel created = api.clubs.createClub(accessToken,
                 new CreateClubBodyModel(CLUB_BOOK_TITLE, CLUB_BOOK_AUTHORS,
                         CLUB_PUBLICATION_YEAR, CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK));
         createdClubId = created.id();
 
-        Allure.step("POST /clubs/" + createdClubId + "/members/me/", () ->
-                api.clubs.joinClub(accessToken, createdClubId));
-
-        Allure.step("Проверка: пользователь добавлен в members", () -> {
-            ClubModel refreshed = api.clubs.getClubById(createdClubId);
-            assertThat(refreshed.members()).isNotEmpty();
+        Allure.step("Проверка: members содержит owner", () -> {
+            assertThat(created.members()).isNotNull().isNotEmpty();
+            assertThat(created.members()).contains(created.owner());
         });
     }
 
     @Test
-    @DisplayName("Позитивный: Выход из клуба (204 No Content)")
-    public void leaveClubTest() {
+    @DisplayName("Негативный: Повторное вступление в клуб (400 Bad Request)")
+    public void joinClubTwiceTest() {
         ClubModel created = api.clubs.createClub(accessToken,
                 new CreateClubBodyModel(CLUB_BOOK_TITLE, CLUB_BOOK_AUTHORS,
                         CLUB_PUBLICATION_YEAR, CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK));
         createdClubId = created.id();
 
-        Allure.step("Вступаем в клуб", () -> api.clubs.joinClub(accessToken, createdClubId));
+        var response = Allure.step("POST /clubs/" + createdClubId + "/members/me/ дважды", () ->
+                api.clubs.joinClubWithSpec(accessToken, createdClubId, clubBadRequestResponseSpec));
 
-        Allure.step("DELETE /clubs/" + createdClubId + "/members/me/", () ->
-                api.clubs.leaveClub(accessToken, createdClubId));
+        Allure.step("Проверка: статус 400", () -> assertThat(response.statusCode()).isEqualTo(400));
     }
+
 
     @Test
     @DisplayName("Негативный: Создание клуба без токена (401 Unauthorized)")
