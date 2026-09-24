@@ -1,6 +1,5 @@
 package tests;
 
-import io.qameta.allure.Allure;
 import models.registration.RegistrationBodyModel;
 import models.registration.SuccessfulRegistrationResponseModel;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,6 +1,5 @@
 package tests;
 
-import io.qameta.allure.Allure;
 import models.clubs.ClubModel;
 import models.clubs.ClubsListResponseModel;
 import org.junit.jupiter.api.DisplayName;

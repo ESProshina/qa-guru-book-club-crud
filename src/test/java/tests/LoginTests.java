@@ -1,6 +1,5 @@
 package tests;
 
-import io.qameta.allure.Allure;
 import models.login.LoginBodyModel;
 import models.login.SuccessfulLoginResponseModel;
 import org.junit.jupiter.api.DisplayName;
