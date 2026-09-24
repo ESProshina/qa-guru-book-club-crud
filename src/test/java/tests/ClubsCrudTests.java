@@ -42,7 +42,6 @@ public class ClubsCrudTests extends TestBase {
         });
     }
 
-    // ==================== CREATE ====================
 
     @Test
     @DisplayName("Позитивный: Создание клуба (201 Created)")
@@ -69,7 +68,6 @@ public class ClubsCrudTests extends TestBase {
         Allure.step("Проверка: created != null", () -> assertThat(response.created()).isNotNull());
     }
 
-    // ==================== READ ====================
 
     @Test
     @DisplayName("Позитивный: Получение клуба по ID (200 OK)")
@@ -87,7 +85,6 @@ public class ClubsCrudTests extends TestBase {
         Allure.step("Проверка: description", () -> assertThat(response.description()).isEqualTo(CLUB_DESCRIPTION));
     }
 
-    // ==================== UPDATE (PUT) ====================
 
     @Test
     @DisplayName("Позитивный: Полное обновление клуба через PUT (200 OK)")
@@ -116,7 +113,6 @@ public class ClubsCrudTests extends TestBase {
                 assertThat(response.description()).isEqualTo(UPDATED_CLUB_DESCRIPTION));
     }
 
-    // ==================== UPDATE (PATCH) ====================
 
     @Test
     @DisplayName("Позитивный: Частичное обновление клуба через PATCH (200 OK)")
@@ -140,7 +136,6 @@ public class ClubsCrudTests extends TestBase {
                 assertThat(response.description()).isEqualTo(CLUB_DESCRIPTION));
     }
 
-    // ==================== DELETE ====================
 
     @Test
     @DisplayName("Позитивный: Удаление клуба (204 No Content)")
@@ -157,11 +152,8 @@ public class ClubsCrudTests extends TestBase {
             assertThat(response.statusCode()).isEqualTo(404);
         });
 
-        // клуб уже удалён, cleanup не нужен
         createdClubId = null;
     }
-
-    // ==================== MEMBERS ====================
 
     @Test
     @DisplayName("Позитивный: Вступление в клуб (204 No Content)")
@@ -193,8 +185,6 @@ public class ClubsCrudTests extends TestBase {
         Allure.step("DELETE /clubs/" + createdClubId + "/members/me/", () ->
                 api.clubs.leaveClub(accessToken, createdClubId));
     }
-
-    // ==================== НЕГАТИВНЫЕ ====================
 
     @Test
     @DisplayName("Негативный: Создание клуба без токена (401 Unauthorized)")
