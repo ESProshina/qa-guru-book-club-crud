@@ -41,7 +41,6 @@ public class ClubsCrudTests extends TestBase {
         });
     }
 
-
     @Test
     @DisplayName("Позитивный: Создание клуба (201 Created)")
     public void createClubTest() {

@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.notNullValue;
 
 public class ClubsSpec {
 
-    // ==================== GET /clubs/ (список) ====================
 
     public static final ResponseSpecification successfulClubsListResponseSpec = new ResponseSpecBuilder()
             .log(ALL)
@@ -22,7 +21,6 @@ public class ClubsSpec {
             .expectBody("results", notNullValue())
             .build();
 
-    // ==================== GET /clubs/{id}/ ====================
 
     public static final ResponseSpecification clubResponse200Spec = new ResponseSpecBuilder()
             .log(ALL)
@@ -33,7 +31,6 @@ public class ClubsSpec {
             .expectBody("owner", notNullValue())
             .build();
 
-    // ==================== POST /clubs/ ====================
 
     public static final ResponseSpecification clubCreatedResponseSpec = new ResponseSpecBuilder()
             .log(ALL)
@@ -44,14 +41,12 @@ public class ClubsSpec {
             .expectBody("created", notNullValue())
             .build();
 
-    // ==================== 204 No Content ====================
 
     public static final ResponseSpecification clubNoContentResponseSpec = new ResponseSpecBuilder()
             .log(ALL)
             .expectStatusCode(204)
             .build();
 
-    // ==================== Негативные ====================
 
     public static final ResponseSpecification clubUnauthorizedResponseSpec = new ResponseSpecBuilder()
             .log(ALL)

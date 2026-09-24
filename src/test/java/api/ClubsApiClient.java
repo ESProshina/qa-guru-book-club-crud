@@ -14,7 +14,6 @@ import static specs.clubs.ClubsSpec.*;
 
 public class ClubsApiClient {
 
-    // ==================== READ ====================
 
     @Step("Получение списка клубов GET /clubs/")
     public ClubsListResponseModel getClubs() {
@@ -51,8 +50,6 @@ public class ClubsApiClient {
                 .response();
     }
 
-    // ==================== CREATE ====================
-
     @Step("Создание клуба POST /clubs/")
     public ClubModel createClub(String accessToken, CreateClubBodyModel body) {
         return given(baseRequestSpec)
@@ -80,8 +77,6 @@ public class ClubsApiClient {
                 .extract()
                 .response();
     }
-
-    // ==================== UPDATE ====================
 
     @Step("Полное обновление клуба PUT /clubs/{id}/")
     public ClubModel updateClub(String accessToken, int id, CreateClubBodyModel body) {
@@ -140,8 +135,6 @@ public class ClubsApiClient {
                 .extract()
                 .response();
     }
-
-    // ==================== DELETE ====================
 
     @Step("Удаление клуба DELETE /clubs/{id}/")
     public void deleteClub(String accessToken, int id) {

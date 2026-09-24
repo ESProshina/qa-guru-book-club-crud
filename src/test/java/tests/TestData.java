@@ -31,8 +31,6 @@ public class TestData {
     public static final String LOGIN_WRONG_CREDENTIALS_ERROR = "Invalid username or password.";
     public static final String REGISTRATION_EXISTING_USER_ERROR = "A user with that username already exists.";
 
-    // ==================== КЛУБЫ (CRUD) ====================
-
     public static final String CLUB_BOOK_TITLE = "Test Book Title";
     public static final String CLUB_BOOK_AUTHORS = "Test Author";
     public static final Integer CLUB_PUBLICATION_YEAR = 2020;

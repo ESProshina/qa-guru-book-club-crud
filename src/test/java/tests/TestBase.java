@@ -12,8 +12,7 @@ public class TestBase {
 
     @BeforeAll
     public static void setUp() {
-        // Фильтр Allure уже подключён в BaseSpec (baseRequestSpec.addFilter)
-        RestAssured.requestSpecification = baseRequestSpec;
+         RestAssured.requestSpecification = baseRequestSpec;
         api = new ApiClient();
     }
 }
