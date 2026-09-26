@@ -4,14 +4,11 @@ gradle/
 !**/src/main/**
 !**/src/test/**
 
-### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
 
-### Gradle ###
 .gradle
-
-### Logs ###
+config-local.properties
 *.log
