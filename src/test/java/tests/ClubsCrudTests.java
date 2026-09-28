@@ -21,26 +21,20 @@ public class ClubsCrudTests extends TestBase {
 
     @BeforeEach
     public void auth() {
-        step("Авторизация и получение access-токена", () -> {
-            LoginBodyModel loginData = new LoginBodyModel(LOGIN_USERNAME, LOGIN_PASSWORD);
-            accessToken = api.auth.loginAndGetAccessToken(loginData);
-        });
+        LoginBodyModel loginData = new LoginBodyModel(LOGIN_USERNAME, LOGIN_PASSWORD);
+        accessToken = api.auth.loginAndGetAccessToken(loginData);
     }
 
     @AfterEach
     public void cleanup() {
-        step("Cleanup: удаление созданного клуба", () -> {
-            if (createdClubId != null) {
-                try {
-                    api.clubs.deleteClub(accessToken, createdClubId);
-                } catch (Exception ignored) {
-                    // клуб уже удалён — не критично
-                }
-                createdClubId = null;
+        if (createdClubId != null) {
+            try {
+                api.clubs.deleteClub(accessToken, createdClubId);
+            } catch (Exception ignored) {
             }
-        });
+            createdClubId = null;
+        }
     }
-
 
     @Test
     @DisplayName("Позитивный: Создание клуба (201 Created)")
@@ -49,8 +43,7 @@ public class ClubsCrudTests extends TestBase {
                 CLUB_BOOK_TITLE, CLUB_BOOK_AUTHORS, CLUB_PUBLICATION_YEAR,
                 CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK);
 
-        ClubModel response = step("POST /clubs/", () ->
-                api.clubs.createClub(accessToken, body));
+        ClubModel response = api.clubs.createClub(accessToken, body);
         createdClubId = response.id();
 
         step("Проверка: id > 0", () -> assertThat(response.id()).isPositive());
@@ -63,7 +56,6 @@ public class ClubsCrudTests extends TestBase {
         step("Проверка: created != null", () -> assertThat(response.created()).isNotNull());
     }
 
-
     @Test
     @DisplayName("Позитивный: Получение клуба по ID (200 OK)")
     public void getClubByIdTest() {
@@ -72,14 +64,12 @@ public class ClubsCrudTests extends TestBase {
                         CLUB_PUBLICATION_YEAR, CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK));
         createdClubId = created.id();
 
-        ClubModel response = step("GET /clubs/" + createdClubId + "/", () ->
-                api.clubs.getClubById(createdClubId));
+        ClubModel response = api.clubs.getClubById(createdClubId);
 
         step("Проверка: id совпадает", () -> assertThat(response.id()).isEqualTo(createdClubId));
         step("Проверка: bookTitle", () -> assertThat(response.bookTitle()).isEqualTo(CLUB_BOOK_TITLE));
         step("Проверка: description", () -> assertThat(response.description()).isEqualTo(CLUB_DESCRIPTION));
     }
-
 
     @Test
     @DisplayName("Позитивный: Полное обновление клуба через PUT (200 OK)")
@@ -94,8 +84,7 @@ public class ClubsCrudTests extends TestBase {
                 UPDATED_CLUB_PUBLICATION_YEAR, UPDATED_CLUB_DESCRIPTION,
                 UPDATED_CLUB_TELEGRAM_LINK);
 
-        ClubModel response = step("PUT /clubs/" + createdClubId + "/", () ->
-                api.clubs.updateClub(accessToken, createdClubId, updated));
+        ClubModel response = api.clubs.updateClub(accessToken, createdClubId, updated);
 
         step("Проверка: bookTitle", () -> assertThat(response.bookTitle()).isEqualTo(UPDATED_CLUB_BOOK_TITLE));
         step("Проверка: bookAuthors", () -> assertThat(response.bookAuthors()).isEqualTo(UPDATED_CLUB_BOOK_AUTHORS));
@@ -114,8 +103,7 @@ public class ClubsCrudTests extends TestBase {
         PatchClubBodyModel patch = new PatchClubBodyModel(
                 UPDATED_CLUB_BOOK_TITLE, null, null, null, null);
 
-        ClubModel response = step("PATCH /clubs/" + createdClubId + "/", () ->
-                api.clubs.patchClub(accessToken, createdClubId, patch));
+        ClubModel response = api.clubs.patchClub(accessToken, createdClubId, patch);
 
         step("Проверка: bookTitle изменился", () ->
                 assertThat(response.bookTitle()).isEqualTo(UPDATED_CLUB_BOOK_TITLE));
@@ -125,7 +113,6 @@ public class ClubsCrudTests extends TestBase {
                 assertThat(response.description()).isEqualTo(CLUB_DESCRIPTION));
     }
 
-
     @Test
     @DisplayName("Позитивный: Удаление клуба (204 No Content)")
     public void deleteClubTest() {
@@ -134,7 +121,7 @@ public class ClubsCrudTests extends TestBase {
                         CLUB_PUBLICATION_YEAR, CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK));
         int id = created.id();
 
-        step("DELETE /clubs/" + id + "/", () -> api.clubs.deleteClub(accessToken, id));
+        api.clubs.deleteClub(accessToken, id);
 
         step("Проверка: GET по удалённому ID возвращает 404", () -> {
             var response = api.clubs.getClubByIdWithSpec(id, clubNotFoundResponseSpec);
@@ -143,6 +130,7 @@ public class ClubsCrudTests extends TestBase {
 
         createdClubId = null;
     }
+
 
     @Test
     @DisplayName("Позитивный: Создатель автоматически добавлен в members клуба")
@@ -166,12 +154,10 @@ public class ClubsCrudTests extends TestBase {
                         CLUB_PUBLICATION_YEAR, CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK));
         createdClubId = created.id();
 
-        var response = step("POST /clubs/" + createdClubId + "/members/me/ дважды", () ->
-                api.clubs.joinClubWithSpec(accessToken, createdClubId, clubBadRequestResponseSpec));
+        var response = api.clubs.joinClubWithSpec(accessToken, createdClubId, clubBadRequestResponseSpec);
 
         step("Проверка: статус 400", () -> assertThat(response.statusCode()).isEqualTo(400));
     }
-
 
     @Test
     @DisplayName("Негативный: Создание клуба без токена (401 Unauthorized)")
@@ -180,8 +166,7 @@ public class ClubsCrudTests extends TestBase {
                 CLUB_BOOK_TITLE, CLUB_BOOK_AUTHORS, CLUB_PUBLICATION_YEAR,
                 CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK);
 
-        var response = step("POST /clubs/ без токена", () ->
-                api.clubs.createClubWithSpec(null, body, clubUnauthorizedResponseSpec));
+        var response = api.clubs.createClubWithSpec(null, body, clubUnauthorizedResponseSpec);
 
         step("Проверка: статус 401", () -> assertThat(response.statusCode()).isEqualTo(401));
     }
@@ -193,8 +178,7 @@ public class ClubsCrudTests extends TestBase {
                 EMPTY_STRING, CLUB_BOOK_AUTHORS, CLUB_PUBLICATION_YEAR,
                 CLUB_DESCRIPTION, CLUB_TELEGRAM_LINK);
 
-        var response = step("POST /clubs/ с пустым bookTitle", () ->
-                api.clubs.createClubWithSpec(accessToken, body, clubBadRequestResponseSpec));
+        var response = api.clubs.createClubWithSpec(accessToken, body, clubBadRequestResponseSpec);
 
         step("Проверка: статус 400", () -> assertThat(response.statusCode()).isEqualTo(400));
     }
@@ -202,8 +186,7 @@ public class ClubsCrudTests extends TestBase {
     @Test
     @DisplayName("Негативный: Получение несуществующего клуба (404 Not Found)")
     public void getNonExistentClubTest() {
-        var response = step("GET /clubs/" + NON_EXISTENT_CLUB_ID + "/", () ->
-                api.clubs.getClubByIdWithSpec(NON_EXISTENT_CLUB_ID, clubNotFoundResponseSpec));
+        var response = api.clubs.getClubByIdWithSpec(NON_EXISTENT_CLUB_ID, clubNotFoundResponseSpec);
 
         step("Проверка: статус 404", () -> assertThat(response.statusCode()).isEqualTo(404));
     }
@@ -211,8 +194,7 @@ public class ClubsCrudTests extends TestBase {
     @Test
     @DisplayName("Негативный: Удаление несуществующего клуба (404 Not Found)")
     public void deleteNonExistentClubTest() {
-        var response = step("DELETE /clubs/" + NON_EXISTENT_CLUB_ID + "/", () ->
-                api.clubs.deleteClubWithSpec(accessToken, NON_EXISTENT_CLUB_ID, clubNotFoundResponseSpec));
+        var response = api.clubs.deleteClubWithSpec(accessToken, NON_EXISTENT_CLUB_ID, clubNotFoundResponseSpec);
 
         step("Проверка: статус 404", () -> assertThat(response.statusCode()).isEqualTo(404));
     }
